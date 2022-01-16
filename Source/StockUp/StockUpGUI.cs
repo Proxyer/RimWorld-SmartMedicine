@@ -214,11 +214,9 @@ namespace SmartMedicine
 
 			if (!Settings.Get().stockUp) return;
 
-			foreach (ThingDef def in DefDatabase<ThingDef>.AllDefsListForReading)
-			{
+			foreach (ThingDef def in pawn.StockingUpList().ToList())
 				if (pawn.StockUpMissing(def))
 					DrawMissingThingRow(pawn, ref y, viewRect.width, def);
-			}
 			DrawStockUpButton(pawn, ref y, viewRect.width);
 		}
 
