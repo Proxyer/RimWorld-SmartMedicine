@@ -301,16 +301,20 @@ namespace SmartMedicine
 		}
 	}
 
+
+	[StaticConstructorOnStartup]
 	[HarmonyPatch(typeof(ITab_Pawn_Gear), "InterfaceDrop")]
 	//private void InterfaceDrop(Thing t)
 	public static class InterfaceDrop_Patch
 	{
-		public static PropertyInfo SelPawnForGearInfo = AccessTools.Property(typeof(ITab_Pawn_Gear), "SelPawnForGear");
+		public delegate Pawn SelPawnForGearDel(ITab_Pawn_Gear tab);
+		public static SelPawnForGearDel SelPawnForGear = AccessTools.MethodDelegate<SelPawnForGearDel>(
+			AccessTools.PropertyGetter(typeof(ITab_Pawn_Gear), "SelPawnForGear"));
 		public static void Postfix(Thing t, ITab_Pawn_Gear __instance)
 		{
 			if (!Mod.settings.stockUp) return;
 
-			Pawn pawn = (Pawn)SelPawnForGearInfo.GetValue(__instance, new object[] { });
+			Pawn pawn = SelPawnForGear(__instance);
 
 			pawn.StockUpStop(t);
 		}
@@ -352,7 +356,7 @@ namespace SmartMedicine
 
 
 			Rect botRect = inRect.BottomPartPixels(inRect.height - Text.LineHeight * 2);
-			GUI.BeginGroup(botRect);
+			Widgets.BeginGroup(botRect);
 			Text.Font = GameFont.Small;
 			GUI.color = Color.white;
 			Rect outRect = new Rect(0f, 0f, botRect.width, botRect.height);
@@ -418,7 +422,7 @@ namespace SmartMedicine
 				scrollViewHeight = y + rowRect.height;
 			}
 			Widgets.EndScrollView();
-			GUI.EndGroup();
+			Widgets.EndGroup();
 			GUI.color = Color.white;
 			Text.Anchor = TextAnchor.UpperLeft;
 		}
